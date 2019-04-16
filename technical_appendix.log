@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.9)  10 APR 2019 15:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.9)  16 APR 2019 11:41
 entering extended mode
 **./technical_appendix.tex
 (technical_appendix.tex
@@ -866,7 +866,7 @@ Package xcolor Warning: Incompatible color definition on input line 258.
 
 Package xcolor Warning: Incompatible color definition on input line 258.
 
-<technical_appendix_files/figure-latex/unnamed-chunk-4-1.pdf, id=63, 469.755pt 
+<technical_appendix_files/figure-latex/unnamed-chunk-4-1.pdf, id=71, 469.755pt 
 x 325.215pt>
 File: technical_appendix_files/figure-latex/unnamed-chunk-4-1.pdf Graphic file 
 (type pdf)
@@ -908,7 +908,7 @@ Package xcolor Warning: Incompatible color definition on input line 336.
 
 Package xcolor Warning: Incompatible color definition on input line 336.
 
-<technical_appendix_files/figure-latex/unnamed-chunk-7-1.pdf, id=81, 469.755pt 
+<technical_appendix_files/figure-latex/unnamed-chunk-7-1.pdf, id=89, 469.755pt 
 x 325.215pt>
 File: technical_appendix_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file 
 (type pdf)
@@ -926,7 +926,7 @@ Package xcolor Warning: Incompatible color definition on input line 373.
 
 Package xcolor Warning: Incompatible color definition on input line 373.
 
-<technical_appendix_files/figure-latex/unnamed-chunk-8-1.pdf, id=87, 469.755pt 
+<technical_appendix_files/figure-latex/unnamed-chunk-8-1.pdf, id=95, 469.755pt 
 x 325.215pt>
 File: technical_appendix_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file 
 (type pdf)
@@ -944,8 +944,8 @@ Package xcolor Warning: Incompatible color definition on input line 389.
 
 Package xcolor Warning: Incompatible color definition on input line 389.
 
-<technical_appendix_files/figure-latex/unnamed-chunk-9-1.pdf, id=97, 469.755pt 
-x 325.215pt>
+<technical_appendix_files/figure-latex/unnamed-chunk-9-1.pdf, id=105, 469.755pt
+ x 325.215pt>
 File: technical_appendix_files/figure-latex/unnamed-chunk-9-1.pdf Graphic file 
 (type pdf)
 <use technical_appendix_files/figure-latex/unnamed-chunk-9-1.pdf>
@@ -1058,7 +1058,7 @@ Package xcolor Warning: Incompatible color definition on input line 664.
 
 Package xcolor Warning: Incompatible color definition on input line 664.
 
-<technical_appendix_files/figure-latex/unnamed-chunk-14-1.pdf, id=136, 469.755p
+<technical_appendix_files/figure-latex/unnamed-chunk-14-1.pdf, id=144, 469.755p
 t x 325.215pt>
 File: technical_appendix_files/figure-latex/unnamed-chunk-14-1.pdf Graphic file
  (type pdf)
@@ -1127,42 +1127,72 @@ Overfull \hbox (865.86998pt too wide) in paragraph at lines 803--824
  [][] 
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 836.
 [13pdfTeX warning (ext4): destination with the same identifier (name{table.2}) 
 has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.836 \end{document}
-                    ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 836.
+l.840 \subsection
+                 {C7 R1 - Observed vs predicted]
+Overfull \hbox (1189.24016pt too wide) in paragraph at lines 847--847
+[]\T1/lmtt/m/n/10 R-squared is a poor measure in and of itself of model fit - p
+articularly given the small number of observations in the model. One may consid
+er reporting observed vs predicted changes to understand how well the model is 
+fitting. Furthermore, directly including the age structure would significantly 
+improve model fit.[] 
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 851.
+
+
+Package xcolor Warning: Incompatible color definition on input line 875.
+
+
+Package xcolor Warning: Incompatible color definition on input line 875.
+
+<technical_appendix_files/figure-latex/unnamed-chunk-17-1.pdf, id=164, 469.755p
+t x 325.215pt>
+File: technical_appendix_files/figure-latex/unnamed-chunk-17-1.pdf Graphic file
+ (type pdf)
+<use technical_appendix_files/figure-latex/unnamed-chunk-17-1.pdf>
+Package pdftex.def Info: technical_appendix_files/figure-latex/unnamed-chunk-17
+-1.pdf  used on input line 877.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+[14]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 884.
+[15 <./technical_appendix_files/figure-latex/unnamed-chunk-17-1.pdf>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 884.
 (technical_appendix.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 836.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 836.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 884.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 884.
 Package rerunfilecheck Info: File `technical_appendix.out' has not changed.
-(rerunfilecheck)             Checksum: F21678ECE64FF0F78AD0A643434E33F3;1453.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 836.
+(rerunfilecheck)             Checksum: 474BDFF10B616911120B7E9F14E910A5;1877.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 884.
  ) 
 Here is how much of TeX's memory you used:
- 14787 strings out of 492945
- 215129 string characters out of 3135497
- 347032 words of memory out of 3000000
- 18374 multiletter control sequences out of 15000+200000
- 46718 words of font info for 65 fonts, out of 3000000 for 9000
+ 14801 strings out of 492945
+ 215561 string characters out of 3135497
+ 347145 words of memory out of 3000000
+ 18382 multiletter control sequences out of 15000+200000
+ 46801 words of font info for 66 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  32i,9n,38p,983b,455s stack positions out of 5000i,500n,10000p,200000b,50000s
-{C:/Program Files/MiKTeX 2.9_full/fonts/enc/dvips/lm/lm-ts1.enc}{C:/Program F
-iles/MiKTeX 2.9_full/fonts/enc/dvips/lm/lm-ec.enc}<C:/Program Files/MiKTeX 2.9_
-full/fonts/type1/public/lm/lmbx12.pfb><C:/Program Files/MiKTeX 2.9_full/fonts/t
-ype1/public/lm/lmr10.pfb><C:/Program Files/MiKTeX 2.9_full/fonts/type1/public/l
-m/lmr17.pfb><C:/Program Files/MiKTeX 2.9_full/fonts/type1/public/lm/lmri10.pfb>
-<C:/Program Files/MiKTeX 2.9_full/fonts/type1/public/lm/lmri12.pfb><C:/Program 
-Files/MiKTeX 2.9_full/fonts/type1/public/lm/lmtk10.pfb><C:/Program Files/MiKTeX
- 2.9_full/fonts/type1/public/lm/lmtt10.pfb><C:/Program Files/MiKTeX 2.9_full/fo
-nts/type1/public/lm/lmtti10.pfb>
-Output written on technical_appendix.pdf (13 pages, 270020 bytes).
+{C:/Program Files/MiKTeX 2.9_full/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Fi
+les/MiKTeX 2.9_full/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Program Files/MiKTeX 2
+.9_full/fonts/enc/dvips/lm/lm-ts1.enc}{C:/Program Files/MiKTeX 2.9_full/fonts/e
+nc/dvips/lm/lm-ec.enc}<C:/Program Files/MiKTeX 2.9_full/fonts/type1/public/lm/l
+mbx12.pfb><C:/Program Files/MiKTeX 2.9_full/fonts/type1/public/lm/lmmi10.pfb><C
+:/Program Files/MiKTeX 2.9_full/fonts/type1/public/lm/lmr10.pfb><C:/Program Fil
+es/MiKTeX 2.9_full/fonts/type1/public/lm/lmr17.pfb><C:/Program Files/MiKTeX 2.9
+_full/fonts/type1/public/lm/lmr7.pfb><C:/Program Files/MiKTeX 2.9_full/fonts/ty
+pe1/public/lm/lmri10.pfb><C:/Program Files/MiKTeX 2.9_full/fonts/type1/public/l
+m/lmri12.pfb><C:/Program Files/MiKTeX 2.9_full/fonts/type1/public/lm/lmtk10.pfb
+><C:/Program Files/MiKTeX 2.9_full/fonts/type1/public/lm/lmtt10.pfb><C:/Program
+ Files/MiKTeX 2.9_full/fonts/type1/public/lm/lmtti10.pfb>
+Output written on technical_appendix.pdf (15 pages, 301730 bytes).
 PDF statistics:
- 194 PDF objects out of 1000 (max. 8388607)
- 27 named destinations out of 1000 (max. 500000)
- 10354 words of extra memory for PDF output out of 12000 (max. 10000000)
+ 228 PDF objects out of 1000 (max. 8388607)
+ 31 named destinations out of 1000 (max. 500000)
+ 10375 words of extra memory for PDF output out of 12000 (max. 10000000)
 

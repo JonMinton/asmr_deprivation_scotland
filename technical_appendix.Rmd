@@ -451,3 +451,42 @@ tbl_both_a %>%
 This document has provided descriptions of the data used, the processing performed on the data, and the code used to perform all analyses, visualisations, and tabulations. Our hope is this addresses any methodological concerns from viewers and reviewers, and will make it much more straightforward for anyone who wants to replicate and advance on our analyses to do so. 
 
 
+# Requests from reviewers
+
+This section will include additional analyses performed as a result of reviewer comments. 
+
+## C7 R1 - Observed vs predicted values 
+
+The reviewer comment was: 
+
+    R-squared is a poor measure in and of itself of model fit - particularly given the small number of observations in the model. One may consider reporting observed vs predicted changes to understand how well the model is fitting. Furthermore, directly including the age structure would significantly improve model fit.
+
+The predicted vs observed values are shown as follows:
+
+```{r}
+percent_changes %>% 
+  filter(SIMD != "Overall") %>% 
+  mutate(qnt = unclass(SIMD) - 1) %>% # This is so the intercept refers to the 1st quintile (not the 'zeroth' quintile)
+  select(gender, period, percent_change, qnt) %>% 
+  group_by(gender, period) %>% 
+  nest() %>% 
+  mutate(mdl = map(data, ~lm(percent_change ~ qnt, data = .x))) %>% 
+  mutate(dta_augmented = map2(mdl, data, broom::augment)) %>% 
+  select(-data, -mdl) %>% 
+  unnest() %>% 
+  ggplot(aes(x = percent_change, y = .fitted, label = qnt + 1)) + 
+  geom_text() + 
+  facet_grid(gender ~ period) + 
+  stat_smooth(method = "lm", se = F) + 
+  labs(
+    x = "Observed percentage",
+    y = "Fitted percentage",
+    title = "Relationships between observed and fitted percentages by gender and period",
+    subtitle = "Values refer to SIMD quintiles (1: most deprived)"
+    
+  )
+
+```
+
+This supports the observation that the relationship has become more linear over time, as also illustrated by the changing $R^{2}$ values between the two periods. 
+
