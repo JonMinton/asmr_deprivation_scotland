@@ -15,9 +15,15 @@ always_allow_html: yes
 
 This document describes all data, methods and code used to generate the results within the above-listed article. 
 
-All data are publically avaialble, and you are free to interrogate and use the code in your own analyses. 
+All data are publically available, and you are free to interrogate and use the code in your own analyses. 
 
 All data preparation, analyses, figures and tables were generated using the R programming language, with the exception of some initial data preparation done within Microsoft Excel. This data preparation only involved changing the structure of existing data within an Excel sheet, rather than the contents of such data. 
+
+## Reviewer comment responses
+
+Many of the results presented here are produced in response to specific reviewer comments. Where an analysis addresses a specific comment, a comment/reviewer code (such as C7R1 for the seventh comment, by reviewer 1), is included in the text to make this clearer.
+
+
 
 # Data 
 
@@ -101,7 +107,18 @@ p1
 
 ```
 
+## C10R2: How was the percentage change calculated?
+
 The following chunk calculates the percentage change, from the earlier to latter period, in ASMR by gender and SIMD quintile. 
+
+Algebraically this can be expressed as follows
+
+$$
+C_T = -100 \big[1 - \frac{y_T^{last}}{y_T^{first}}\big]
+$$
+
+Where $C_T$ refers to the percentage change over a time period $T$, $y_T^{last}$ to the observed age-standardised mortality rate (ASMR) in the last year within the period $T$, and $y_T^{first}$ to the ASMR in the first year in the period $T$. Within the analyses, two distinct periods are considered: 2006 to 2011 inclusive, and 2012 to 2017 inclusive. 
+
 
 ```{r}
 percent_changes <- dta_tidy %>% 
@@ -110,13 +127,17 @@ percent_changes <- dta_tidy %>%
     between(year, 2006, 2011) ~ "2006-2011",
     TRUE ~ NA_character_) %>% factor(levels = c("2012-2017", "2006-2011"))) %>% 
   group_by(gender, simd, period) %>% 
-  filter(year == min(year) | year == max(year) ) %>% 
+  filter(year == min(year) | year == max(year) ) %>% # This finds the first and last year in each period
   filter(!is.na(period)) %>% 
   group_by(gender, SIMD, period) %>% 
   summarise(percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)])) %>% 
   ungroup()
 
 ```
+
+For the alternative method, presented in the appendix, the model predicted ASMR values $\hat{Y}$ are used in place of the observed ASMR values $y$ in the above. These predicted values are produced for each SIMD, period, and gender category regressed on year within period. This is shown in the section 'approach discussed in sensitivity analysis'.   
+
+
 
 Note: The contents of `percent_changes` look as follows:
 
@@ -125,7 +146,9 @@ percent_changes
 
 ```
 
-Note: The code chunk above can be readily adapted to showing absolute change (for example), as follows
+## C6 R1 - absolute changes not presented
+
+The following shows how the code chunk above can be adapted to show the absolute changes as a figure.
 
 ```{r}
 dta_tidy %>% 
@@ -149,6 +172,30 @@ dta_tidy %>%
   theme(axis.text.x = element_text(angle = 90)) 
 
 ```
+We can see from this that the absolute changes slowed in the latter period, and became positive (worse in absolute terms) in the most deprived fifth of the population.
+
+The following shows the above as a table
+
+```{r}
+dta_tidy %>% 
+  mutate(period = case_when(
+    between(year, 2012, 2017) ~ "2012-2017", 
+    between(year, 2006, 2011) ~ "2006-2011",
+    TRUE ~ NA_character_) %>% factor(levels = c("2012-2017", "2006-2011"))) %>% 
+  group_by(gender, simd, period) %>% 
+  filter(year == min(year) | year == max(year) ) %>% 
+  filter(!is.na(period)) %>% 
+  group_by(gender, SIMD, period) %>% 
+  summarise(
+    percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)]),
+    absolute_change = asmr[year==max(year)] - asmr[year == min(year)] # additional line
+    ) %>% 
+  ungroup() %>% 
+  select(-percent_change) %>% 
+  spread(SIMD, absolute_change)
+
+```
+
 
 The following shows the second part of the figure in the paper
 
@@ -157,7 +204,7 @@ p2 <- percent_changes %>%
     mutate(SIMD = factor(SIMD, 
                        levels = c("Q.1 (Most deprived)", 
                                   "Q.2", "Q.3", "Q.4", "Q.5 (Least deprived)", "Overall"),
-                       labels = c("Most", "Q2", "Q3", "Q4", "Least", "Overall")
+                       labels = c("Most deprived", "Q2", "Q3", "Q4", "Least deprived", "Overall")
                        )
          ) %>% 
   filter(SIMD != "Overall") %>% 
@@ -289,7 +336,7 @@ tbl_both %>%
 
 
 
-# Approach discussed in sensitivity analysis
+# Approach discussed in sensitivity analysis (C2R1, C10R2)
 
 The sensitivity analysis to the paper showed the effect of using the fitted values for the first and last year in each of the periods, rather than the values themselves. This approach can address any concern that the first and last year within either period were in any way anomalous or uncharacteristic of change within the period as a whole. 
 
@@ -330,7 +377,7 @@ percent_changes_pred <- percent_changes_pred %>%
   mutate(SIMD = factor(SIMD, 
                        levels = c("Q.1 (Most deprived)", 
                                   "Q.2", "Q.3", "Q.4", "Q.5 (Least deprived)", "Overall", "Mean of quintiles"),
-                       labels = c("Most", "Q2", "Q3", "Q4", "Least", "Overall", "Mean of quintiles")
+                       labels = c("Most deprived", "Q2", "Q3", "Q4", "Least deprived", "Overall", "Mean of quintiles")
                        )
   ) 
 ```
