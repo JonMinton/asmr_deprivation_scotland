@@ -213,10 +213,10 @@ p2 <- percent_changes %>%
                        )
          ) %>% 
   filter(SIMD != "Overall") %>% 
-  ggplot(aes(x = SIMD, y = percent_change, group = period, shape = period)) + 
+  ggplot(aes(x = SIMD, y = percent_change, group = period, shape = period, fill = period, colour = period)) + 
   facet_wrap( ~ gender) + 
   geom_point(size = 5) + 
-  stat_smooth(method = "lm", se = F) + # This produces the blue line with the regression slopes
+  stat_smooth(method = "lm", se = F, colour = "black") + # This produces the blue line with the regression slopes
   geom_hline(yintercept = 0) + 
   geom_hline( # This adds the overall percent change
     aes(yintercept = percent_change, group = period),
@@ -225,8 +225,9 @@ p2 <- percent_changes %>%
   ) + 
   theme(axis.text.x = element_text(angle = 90)) + 
   labs(y = "Percent change in ASMR by period", x = "SIMD Quintile") +
-  scale_shape_manual("Period", values = c(2, 16))  # This has been changed to make one of the points hollow
-    
+  scale_shape_manual("Period", values = c(2, 16)) +    # This has been changed to make one of the points hollow
+  scale_fill_manual("Period", values = c("black", "grey")) +
+  scale_colour_manual("Period", values = c("black", "grey"))
 p2 
 
 ```
@@ -396,20 +397,21 @@ The subfigure using this alternative stratgy is therefore produced as follows:
 ```{r}
 p2a <- percent_changes_pred %>% 
   filter(!(SIMD %in% c("Overall", "Mean of quintiles"))) %>% 
-  ggplot(aes(x = SIMD, y = percent_change, group = period, shape = period)) + 
+  ggplot(aes(x = SIMD, y = percent_change, group = period, shape = period, fill = period, colour = period)) + 
   facet_wrap( ~ gender) + 
   geom_point(size = 5) + 
-  stat_smooth(method = "lm", se = F) + 
+  stat_smooth(method = "lm", se = F, colour = "black") + # This produces the blue line with the regression slopes
   geom_hline(yintercept = 0) + 
-  geom_hline(
+  geom_hline( # This adds the overall percent change
     aes(yintercept = percent_change, group = period),
-    data = percent_changes_pred %>% filter(SIMD == "Overall"),
+    data = percent_changes %>% filter(SIMD == "Overall"),
     linetype = "dashed"
   ) + 
-
   theme(axis.text.x = element_text(angle = 90)) + 
   labs(y = "Percent change in ASMR by period", x = "SIMD Quintile") +
-  scale_shape_manual("Period", values = c(17, 16)) 
+  scale_shape_manual("Period", values = c(2, 16)) +    # This has been changed to make one of the points hollow
+  scale_fill_manual("Period", values = c("black", "grey")) +
+  scale_colour_manual("Period", values = c("black", "grey"))
     
 p2a
 
