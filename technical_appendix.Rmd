@@ -3,8 +3,8 @@ title: Online Technical Appendix for Fenton, Wyper, McCartney, Minton, 'Socioeco
   inequality in recent mortality trends in Scotland
 author: "Jon Minton"
 output:
-  pdf_document: default
   html_notebook: default
+  pdf_document: default
   word_document: default
   html_document:
     df_print: paged
@@ -146,7 +146,7 @@ percent_changes
 
 ```
 
-## C6 R1 - absolute changes not presented
+## Absolute rates (C6R1)
 
 The following shows how the code chunk above can be adapted to show the absolute changes as a figure.
 
@@ -172,6 +172,7 @@ dta_tidy %>%
   theme(axis.text.x = element_text(angle = 90)) 
 
 ```
+
 We can see from this that the absolute changes slowed in the latter period, and became positive (worse in absolute terms) in the most deprived fifth of the population.
 
 The following shows the above as a table
@@ -196,8 +197,12 @@ dta_tidy %>%
 
 ```
 
+## Amended figure (C12R2, C20R3)
 
-The following shows the second part of the figure in the paper
+Two cosmetic amendments to Figure1b have been requested. The first is to avoid overlapping points between periods; the second is to relabel the xaxis so the labels read 'most deprived' and 'least deprived' rather than 'most' and 'least'. 
+
+The following code chunk produces these figures with these amendments made.
+
 
 ```{r}
 p2 <- percent_changes %>% 
@@ -220,11 +225,15 @@ p2 <- percent_changes %>%
   ) + 
   theme(axis.text.x = element_text(angle = 90)) + 
   labs(y = "Percent change in ASMR by period", x = "SIMD Quintile") +
-  scale_shape_manual("Period", values = c(17, 16)) 
+  scale_shape_manual("Period", values = c(2, 16))  # This has been changed to make one of the points hollow
     
 p2 
 
 ```
+
+It is now clear that the points overlap in the least deprived quitile.
+
+
 
 
 # Combined figure 
