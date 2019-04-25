@@ -58,10 +58,11 @@ dta <- read_excel("data/ASMR_SIMD_2001_2017_indexed trends.xlsx", sheet = "flat_
 
 
 ```{r}
-names(dta) <- c("year", "overall", "q1", "q2", "q3", "q4", "q5", "gender")
+names(dta) <- c("year", "overall", "q1", "q2", "q3", "q4", "q5", "sex")
 
 dta_tidy <- dta %>% 
-  gather(key = "simd", value = "asmr", -year, -gender) %>% 
+  rename(sex = sex) %>% 
+  gather(key = "simd", value = "asmr", -year, -sex) %>% 
   mutate(SIMD = factor(simd, 
                        levels = c("q1", "q2", "q3", "q4", "q5","overall"),
                        labels = c("Q.1 (Most deprived)", 
@@ -71,15 +72,17 @@ dta_tidy <- dta %>%
 
 ```
 
+**Note:** `Q` in the above refers to quintile, i.e. fifths of areas by Scottish Index of Multiple Deprivation (SIMD) scores, with `Q1` referring to the most deprived fifth of areas. 
+
 ## Visualising
 
 This is one part of the first figure. The R package `ggplot2` is used to produce this visualisation.
 
-```{r}
+```{r, fig.width = 12, fig.height = 9}
 p1 <- dta_tidy %>% 
   ggplot(aes(x = year )) +
 
-  facet_wrap(~gender) + 
+  facet_wrap(~sex) + 
   geom_line(aes(y = asmr, group = SIMD, linetype = SIMD, size = SIMD, color = SIMD)) + 
   scale_size_manual(values = c(1, 1.2, 1, 1.2, 1, 1.4)) + 
   scale_linetype_manual(values = c(2,3,4,5, 6, 1)) + 
@@ -109,7 +112,7 @@ p1
 
 ## C10R2: How was the percentage change calculated?
 
-The following chunk calculates the percentage change, from the earlier to latter period, in ASMR by gender and SIMD quintile. 
+The following chunk calculates the percentage change, from the earlier to latter period, in ASMR by sex and SIMD quintile. 
 
 Algebraically this can be expressed as follows
 
@@ -126,16 +129,16 @@ percent_changes <- dta_tidy %>%
     between(year, 2012, 2017) ~ "2012-2017", 
     between(year, 2006, 2011) ~ "2006-2011",
     TRUE ~ NA_character_) %>% factor(levels = c("2012-2017", "2006-2011"))) %>% 
-  group_by(gender, simd, period) %>% 
+  group_by(sex, simd, period) %>% 
   filter(year == min(year) | year == max(year) ) %>% # This finds the first and last year in each period
   filter(!is.na(period)) %>% 
-  group_by(gender, SIMD, period) %>% 
+  group_by(sex, SIMD, period) %>% 
   summarise(percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)])) %>% 
   ungroup()
 
 ```
 
-For the alternative method, presented in the appendix, the model predicted ASMR values $\hat{Y}$ are used in place of the observed ASMR values $y$ in the above. These predicted values are produced for each SIMD, period, and gender category regressed on year within period. This is shown in the section 'approach discussed in sensitivity analysis'.   
+For the alternative method, presented in the appendix, the model predicted ASMR values $\hat{Y}$ are used in place of the observed ASMR values $y$ in the above. These predicted values are produced for each SIMD, period, and sex category regressed on year within period. This is shown in the section 'approach discussed in sensitivity analysis'.   
 
 
 
@@ -150,16 +153,16 @@ percent_changes
 
 The following shows how the code chunk above can be adapted to show the absolute changes as a figure.
 
-```{r}
+```{r, fig.height = 6, fig.width = 9}
 dta_tidy %>% 
   mutate(period = case_when(
     between(year, 2012, 2017) ~ "2012-2017", 
     between(year, 2006, 2011) ~ "2006-2011",
     TRUE ~ NA_character_) %>% factor(levels = c("2012-2017", "2006-2011"))) %>% 
-  group_by(gender, simd, period) %>% 
+  group_by(sex, simd, period) %>% 
   filter(year == min(year) | year == max(year) ) %>% 
   filter(!is.na(period)) %>% 
-  group_by(gender, SIMD, period) %>% 
+  group_by(sex, SIMD, period) %>% 
   summarise(
     percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)]),
     absolute_change = asmr[year==max(year)] - asmr[year == min(year)] # additional line
@@ -167,9 +170,10 @@ dta_tidy %>%
   ungroup() %>% # indicative visualisation 
   ggplot(aes(x = SIMD, y = absolute_change)) +
   geom_point() + 
-  facet_grid(period~gender) + 
+  facet_grid(period~sex) + 
   geom_hline(yintercept = 0) +
-  theme(axis.text.x = element_text(angle = 90)) 
+  theme(axis.text.x = element_text(angle = 90)) + 
+  labs(x = "Deprivation quintile", y = "Absolute change in ASMR", title = "Absolute change in ASMR by sex, period, and SIMD quintile")
 
 ```
 
@@ -183,10 +187,10 @@ dta_tidy %>%
     between(year, 2012, 2017) ~ "2012-2017", 
     between(year, 2006, 2011) ~ "2006-2011",
     TRUE ~ NA_character_) %>% factor(levels = c("2012-2017", "2006-2011"))) %>% 
-  group_by(gender, simd, period) %>% 
+  group_by(sex, simd, period) %>% 
   filter(year == min(year) | year == max(year) ) %>% 
   filter(!is.na(period)) %>% 
-  group_by(gender, SIMD, period) %>% 
+  group_by(sex, SIMD, period) %>% 
   summarise(
     percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)]),
     absolute_change = asmr[year==max(year)] - asmr[year == min(year)] # additional line
@@ -204,7 +208,7 @@ Two cosmetic amendments to Figure1b have been requested. The first is to avoid o
 The following code chunk produces these figures with these amendments made.
 
 
-```{r}
+```{r, fig.width = 9, fig.height = 6}
 p2 <- percent_changes %>% 
     mutate(SIMD = factor(SIMD, 
                        levels = c("Q.1 (Most deprived)", 
@@ -214,7 +218,7 @@ p2 <- percent_changes %>%
          ) %>% 
   filter(SIMD != "Overall") %>% 
   ggplot(aes(x = SIMD, y = percent_change, group = period, shape = period, fill = period, colour = period)) + 
-  facet_wrap( ~ gender) + 
+  facet_wrap( ~ sex) + 
   geom_point(size = 5) + 
   stat_smooth(method = "lm", se = F, colour = "black") + # This produces the blue line with the regression slopes
   geom_hline(yintercept = 0) + 
@@ -242,7 +246,7 @@ It is now clear that the points overlap in the least deprived quitile.
 The following produces the combined figure comprising the two parts shown previously. 
 The figure is rendered as a png format image at 300dpi, and placed in the directory 'figures'.
 
-```{r}
+```{r, fig.height = 12, fig.width = 12}
 p_both <- plot_grid(p1, p2, labels = c("A", "B"), ncol = 1, align = "v")
 
 p_both
@@ -258,7 +262,7 @@ These summarise a series of univariate linear regressions of SIMD quintile again
 
 The columns `intercept` and `gradient` present summary information about point estimates and 95% confidence intervals for the intercept and gradient of the the regressions, which are then presented in the formatted table. 
 
-A functional programming approach was adopted in order to produce the same analyses consistently for different gender and period combinations, using functions within the (`purrr` package)[https://purrr.tidyverse.org/.
+A functional programming approach was adopted in order to produce the same analyses consistently for different sex and period combinations, using functions within the (`purrr` package)[https://purrr.tidyverse.org/.
 
 
 ```{r}
@@ -279,8 +283,8 @@ get_ci <- function(x){
 tbl_1 <- percent_changes %>% 
   filter(SIMD != "Overall") %>% 
   mutate(qnt = unclass(SIMD) - 1) %>% # This is so the intercept refers to the 1st quintile (not the 'zeroth' quintile)
-  select(gender, period, percent_change, qnt) %>% 
-  group_by(gender, period) %>% 
+  select(sex, period, percent_change, qnt) %>% 
+  group_by(sex, period) %>% 
   nest() %>% 
   mutate(mdl = map(data, ~lm(percent_change ~ qnt, data = .x))) %>% 
   mutate(`R. sq.` = map_dbl(mdl, ~summary(.x)["r.squared"][[1]])) %>% 
@@ -293,7 +297,7 @@ tbl_1 <- percent_changes %>%
     grd_lower = map_dbl(cis, ~.[["lower"]][2]),
     grd_upper = map_dbl(cis, ~.[["upper"]][2])                
   ) %>% 
-  select(gender, period, `R. sq.`, 
+  select(sex, period, `R. sq.`, 
          gradient, grd_lower, grd_upper, 
          intercept, int_lower, int_upper
   ) %>% 
@@ -333,10 +337,10 @@ The following converts the above table into a more neatly formatted table using 
 ```{r, warning = F, markup = 'asis'}
 tbl_both %>% 
   mutate(period = factor(period, levels = c("2006-2011", "2012-2017")))  %>%
-  arrange(gender, period) %>% 
+  arrange(sex, period) %>% 
   knitr::kable(
     digits = 2, 
-    caption = "Percent change in ASMR by gender, SIMD quintile, and period"
+    caption = "Percent change in ASMR by sex, SIMD quintile, and period"
   ) %>% 
   kableExtra::kable_styling() %>% 
   kableExtra::add_header_above(c(" "," ", "Percentages" = 6, "Model results" = 3)) %>% 
@@ -350,7 +354,7 @@ tbl_both %>%
 
 The sensitivity analysis to the paper showed the effect of using the fitted values for the first and last year in each of the periods, rather than the values themselves. This approach can address any concern that the first and last year within either period were in any way anomalous or uncharacteristic of change within the period as a whole. 
 
-The function `broom::augment` was used to extract fitted values for each year within each period, gender and SIMD combination. The fitted values, `.fitted`, were then used in place of the observed values, `asmr`, as in the main analyses.  
+The function `broom::augment` was used to extract fitted values for each year within each period, sex and SIMD combination. The fitted values, `.fitted`, were then used in place of the observed values, `asmr`, as in the main analyses.  
 
 ```{r}
 percent_changes_pred <- dta_tidy %>% 
@@ -358,14 +362,14 @@ percent_changes_pred <- dta_tidy %>%
         between(year, 2012, 2017) ~ "2012-2017", 
         between(year, 2006, 2011) ~ "2006-2011",
         TRUE ~ NA_character_) %>% factor(levels = c("2012-2017", "2006-2011"))) %>% 
-    group_by(gender, SIMD, simd, period) %>% 
+    group_by(sex, SIMD, simd, period) %>% 
   nest() %>% 
   mutate(mdl = map(data, ~lm(asmr ~ year, data = .x))) %>% 
   mutate(aug = map(mdl, broom::augment)) %>% 
   select(-data, -mdl) %>% 
   unnest() %>% 
   filter(!is.na(period)) %>% 
-  group_by(gender, SIMD, period) %>% 
+  group_by(sex, SIMD, period) %>% 
   filter(year == min(year) | year == max(year) ) %>% 
   summarise(percent_change = - 100 * (1 - .fitted[year == max(year)] / .fitted[year == min(year)])) %>% 
   ungroup()
@@ -376,11 +380,11 @@ percent_changes_pred <- dta_tidy %>%
 
 ```{r}
 percent_changes_pred_overall <- percent_changes_pred %>% 
-  group_by(gender, period) %>% 
+  group_by(sex, period) %>% 
   summarise(percent_change = mean(percent_change)) %>% 
   ungroup() %>% 
   mutate(SIMD = "Mean of quintiles") %>% 
-  select(gender, SIMD, period, percent_change)
+  select(sex, SIMD, period, percent_change)
   
 percent_changes_pred <- percent_changes_pred %>% 
   bind_rows(percent_changes_pred_overall) %>% 
@@ -394,11 +398,11 @@ percent_changes_pred <- percent_changes_pred %>%
 
 The subfigure using this alternative stratgy is therefore produced as follows:
 
-```{r}
+```{r, fig.width = 9, fig.height = 6}
 p2a <- percent_changes_pred %>% 
   filter(!(SIMD %in% c("Overall", "Mean of quintiles"))) %>% 
   ggplot(aes(x = SIMD, y = percent_change, group = period, shape = period, fill = period, colour = period)) + 
-  facet_wrap( ~ gender) + 
+  facet_wrap( ~ sex) + 
   geom_point(size = 5) + 
   stat_smooth(method = "lm", se = F, colour = "black") + # This produces the blue line with the regression slopes
   geom_hline(yintercept = 0) + 
@@ -439,8 +443,8 @@ get_ci <- function(x){
 tbl_1a <- percent_changes_pred %>% 
   filter(!(SIMD %in% c("Overall", "Mean of quintiles"))) %>% 
   mutate(qnt = unclass(SIMD) - 1) %>% # This is so the intercept refers to the 1st quintile (not the 'zeroth' quintile)
-  select(gender, period, percent_change, qnt) %>% 
-  group_by(gender, period) %>% 
+  select(sex, period, percent_change, qnt) %>% 
+  group_by(sex, period) %>% 
   nest() %>% 
   mutate(mdl = map(data, ~lm(percent_change ~ qnt, data = .x))) %>% 
   mutate(`R. sq.` = map_dbl(mdl, ~summary(.x)["r.squared"][[1]])) %>% 
@@ -453,7 +457,7 @@ tbl_1a <- percent_changes_pred %>%
     grd_lower = map_dbl(cis, ~.[["lower"]][2]),
     grd_upper = map_dbl(cis, ~.[["upper"]][2])                
   ) %>% 
-  select(gender, period, `R. sq.`, 
+  select(sex, period, `R. sq.`, 
          gradient, grd_lower, grd_upper, 
          intercept, int_lower, int_upper
   ) %>% 
@@ -492,10 +496,10 @@ And the table using the alternative approach
 ```{r, warning = F, markup = 'asis'}
 tbl_both_a %>% 
   mutate(period = factor(period, levels = c("2006-2011", "2012-2017")))  %>%
-  arrange(gender, period) %>% 
+  arrange(sex, period) %>% 
   knitr::kable(
     digits = 2, 
-    caption = "Percent change in ASMR by gender, SIMD quintile, and period. (Alternative method)"
+    caption = "Percent change in ASMR by sex, SIMD quintile, and period. (Alternative method)"
   ) %>% 
   kableExtra::kable_styling() %>% 
   kableExtra::add_header_above(c(" "," ", "Percentages" = 6, "Model results" = 3)) %>% 
@@ -521,12 +525,12 @@ The reviewer comment was:
 
 The predicted vs observed values are shown as follows:
 
-```{r}
+```{r, fig.width = 8, fig.height = 8}
 percent_changes %>% 
   filter(SIMD != "Overall") %>% 
   mutate(qnt = unclass(SIMD) - 1) %>% # This is so the intercept refers to the 1st quintile (not the 'zeroth' quintile)
-  select(gender, period, percent_change, qnt) %>% 
-  group_by(gender, period) %>% 
+  select(sex, period, percent_change, qnt) %>% 
+  group_by(sex, period) %>% 
   nest() %>% 
   mutate(mdl = map(data, ~lm(percent_change ~ qnt, data = .x))) %>% 
   mutate(dta_augmented = map2(mdl, data, broom::augment)) %>% 
@@ -534,12 +538,12 @@ percent_changes %>%
   unnest() %>% 
   ggplot(aes(x = percent_change, y = .fitted, label = qnt + 1)) + 
   geom_text() + 
-  facet_grid(gender ~ period) + 
+  facet_grid(sex ~ period) + 
   stat_smooth(method = "lm", se = F) + 
   labs(
     x = "Observed percentage",
     y = "Fitted percentage",
-    title = "Relationships between observed and fitted percentages by gender and period",
+    title = "Relationships between observed and fitted percentages by sex and period",
     subtitle = "Values refer to SIMD quintiles (1: most deprived)"
     
   )
