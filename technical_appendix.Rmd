@@ -111,8 +111,9 @@ p1
 ```
 
 ## C10R2: How was the percentage change calculated?
+## C6R1: Absolute changes 
 
-The following chunk calculates the percentage change, from the earlier to latter period, in ASMR by sex and SIMD quintile. 
+The following code chunk calculates the percentage change, from the earlier to latter period, in ASMR by sex and SIMD quintile. 
 
 Algebraically this can be expressed as follows
 
@@ -122,10 +123,10 @@ $$
 
 Where $C_T$ refers to the percentage change over a time period $T$, $y_T^{last}$ to the observed age-standardised mortality rate (ASMR) in the last year within the period $T$, and $y_T^{first}$ to the ASMR in the first year in the period $T$. Within the analyses, two distinct periods are considered: 2006 to 2011 inclusive, and 2012 to 2017 inclusive. 
 
-
+This code chunk has been adapted so as to also include calcuations of absolute differences (per 100,000 population) in the death rates.
 
 ```{r}
-percent_changes <- dta_tidy %>% 
+changes <- dta_tidy %>% 
   mutate(period = case_when(
     between(year, 2012, 2017) ~ "2012-2017", 
     between(year, 2006, 2011) ~ "2006-2011",
@@ -134,7 +135,10 @@ percent_changes <- dta_tidy %>%
   filter(year == min(year) | year == max(year) ) %>% # This finds the first and last year in each period
   filter(!is.na(period)) %>% 
   group_by(sex, SIMD, period) %>% 
-  summarise(percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)])) %>% 
+  summarise(
+    percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)]),
+    absolute_change = asmr[year == max(year)] - asmr[year == min(year)]
+    ) %>% 
   ungroup()
 
 ```
@@ -142,10 +146,10 @@ percent_changes <- dta_tidy %>%
 
 
 
-Note: The contents of `percent_changes` look as follows:
+Note: The contents of `changes` look as follows:
 
 ```{r}
-percent_changes
+changes
 
 ```
 
@@ -156,23 +160,10 @@ For the alternative method, presented in the appendix, the model predicted ASMR 
 
 ## Absolute rates (C6R1)
 
-The following shows how the code chunk above can be adapted to show the absolute changes as a figure.
+The following shows the absolute changes in ASMR graphically 
 
 ```{r, fig.height = 6, fig.width = 9}
-dta_tidy %>% 
-  mutate(period = case_when(
-    between(year, 2012, 2017) ~ "2012-2017", 
-    between(year, 2006, 2011) ~ "2006-2011",
-    TRUE ~ NA_character_) %>% factor(levels = c("2012-2017", "2006-2011"))) %>% 
-  group_by(sex, simd, period) %>% 
-  filter(year == min(year) | year == max(year) ) %>% 
-  filter(!is.na(period)) %>% 
-  group_by(sex, SIMD, period) %>% 
-  summarise(
-    percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)]),
-    absolute_change = asmr[year==max(year)] - asmr[year == min(year)] # additional line
-    ) %>% 
-  ungroup() %>% # indicative visualisation 
+changes %>% 
   ggplot(aes(x = SIMD, y = absolute_change)) +
   geom_point() + 
   facet_grid(period~sex) + 
@@ -187,20 +178,7 @@ We can see from this that the absolute changes slowed in the latter period, and 
 The following shows the above as a table
 
 ```{r}
-dta_tidy %>% 
-  mutate(period = case_when(
-    between(year, 2012, 2017) ~ "2012-2017", 
-    between(year, 2006, 2011) ~ "2006-2011",
-    TRUE ~ NA_character_) %>% factor(levels = c("2012-2017", "2006-2011"))) %>% 
-  group_by(sex, simd, period) %>% 
-  filter(year == min(year) | year == max(year) ) %>% 
-  filter(!is.na(period)) %>% 
-  group_by(sex, SIMD, period) %>% 
-  summarise(
-    percent_change = - 100 * (1 - asmr[year == max(year)] / asmr[year == min(year)]),
-    absolute_change = asmr[year==max(year)] - asmr[year == min(year)] # additional line
-    ) %>% 
-  ungroup() %>% 
+changes %>% 
   select(-percent_change) %>% 
   spread(SIMD, absolute_change)
 
@@ -214,7 +192,8 @@ The following code chunk produces these figures with these amendments made.
 
 
 ```{r, fig.width = 9, fig.height = 6}
-p2 <- percent_changes %>% 
+p2 <- changes %>%
+    select(-absolute_change) %>% 
     mutate(SIMD = factor(SIMD, 
                        levels = c("Q.1 (Most deprived)", 
                                   "Q.2", "Q.3", "Q.4", "Q.5 (Least deprived)", "Overall"),
@@ -285,7 +264,7 @@ get_ci <- function(x){
 }
 
 # Model parameters 
-tbl_1 <- percent_changes %>% 
+tbl_1_pct <- changes %>% 
   filter(SIMD != "Overall") %>% 
   mutate(qnt = unclass(SIMD) - 1) %>% # This is so the intercept refers to the 1st quintile (not the 'zeroth' quintile)
   select(sex, period, percent_change, qnt) %>% 
@@ -328,19 +307,19 @@ tbl_1 <- percent_changes %>%
   ) %>% 
   select(-grd_lower, -grd_upper, -int_lower, -int_upper)
 
-tbl_1
+tbl_1_pct
 
-tbl_2 <- percent_changes %>% spread(SIMD, percent_change)
+tbl_2_pct <- changes %>% select(-absolute_change) %>% spread(SIMD, percent_change)
 
-tbl_both <- inner_join(tbl_2, tbl_1) 
-tbl_both 
+tbl_both_pct <- inner_join(tbl_2_pct, tbl_1_pct) 
+tbl_both_pct 
 ```
 
 The following converts the above table into a more neatly formatted table using the `kable` and `kableExtra` packages.
 
 
 ```{r, warning = F, markup = 'asis'}
-tbl_both %>% 
+tbl_both_pct %>% 
   mutate(period = factor(period, levels = c("2006-2011", "2012-2017")))  %>%
   arrange(sex, period) %>% 
   knitr::kable(
@@ -354,7 +333,103 @@ tbl_both %>%
 ```
 
 
+## Absolute change
 
+The following table presents a similarly unformatted, then formatted, table for the absolute change differences. 
+
+```{r}
+
+# Model parameters 
+tbl_1_abs <- changes %>% 
+  filter(SIMD != "Overall") %>% 
+  mutate(qnt = unclass(SIMD) - 1) %>% # This is so the intercept refers to the 1st quintile (not the 'zeroth' quintile)
+  select(sex, period, absolute_change, qnt) %>% 
+  group_by(sex, period) %>% 
+  nest() %>% 
+  mutate(mdl = map(data, ~lm(absolute_change ~ qnt, data = .x))) %>% 
+  mutate(`R. sq.` = map_dbl(mdl, ~summary(.x)["r.squared"][[1]])) %>% 
+  mutate(gradient = map_dbl(mdl, ~coef(.x)["qnt"])) %>% 
+  mutate(intercept = map_dbl(mdl, ~coef(.x)["(Intercept)"])) %>% 
+  mutate(cis = map(mdl, get_ci)) %>% 
+  mutate(
+    int_lower = map_dbl(cis, ~.[["lower"]][1]),
+    int_upper = map_dbl(cis, ~.[["upper"]][1]),
+    grd_lower = map_dbl(cis, ~.[["lower"]][2]),
+    grd_upper = map_dbl(cis, ~.[["upper"]][2])                
+  ) %>% 
+  select(sex, period, `R. sq.`, 
+         gradient, grd_lower, grd_upper, 
+         intercept, int_lower, int_upper
+  ) %>% 
+  mutate(
+    gradient = paste0(
+      format(round(gradient, 2), nsmall = 2), 
+      " (", 
+      format(round(grd_lower, 2), nsmall = 2), 
+      ", ", 
+      format(round(grd_upper, 2), nsmall = 2), 
+      ")"
+    )
+  ) %>% 
+  mutate(
+    intercept = paste0(
+      format(round(intercept, 2), nsmall = 2), 
+      " (", 
+      format(round(int_lower, 2), nsmall = 2), 
+      ", ", 
+      format(round(int_upper, 2), nsmall = 2),
+      ")"
+    )
+  ) %>% 
+  select(-grd_lower, -grd_upper, -int_lower, -int_upper)
+
+tbl_1_abs
+
+tbl_2_abs <- changes %>% select(-percent_change) %>% spread(SIMD, absolute_change)
+
+tbl_both_abs <- inner_join(tbl_2_abs, tbl_1_abs) 
+tbl_both_abs 
+
+```
+
+
+And the following shows the above table formatted as previously
+
+
+```{r}
+tbl_both_abs %>% 
+  mutate(period = factor(period, levels = c("2006-2011", "2012-2017")))  %>%
+  arrange(sex, period) %>% 
+  knitr::kable(
+    digits = 2, 
+    caption = "Absolute change in ASMR by sex, SIMD quintile, and period"
+  ) %>% 
+  kableExtra::kable_styling() %>% 
+  kableExtra::add_header_above(c(" "," ", "Absolute Differences" = 6, "Model results" = 3)) %>% 
+  kableExtra::footnote("Overall: Whole of Scotland. R.Sq. : R-Squared for model. Gradient: Increase in absolute change per unit increase in quintile. Intercept: Predicted absolute change in most deprived quintile. For gradient and intercept, values in parentheses show lower and upper 95% confidence intervals of coefficients respectively.")
+
+```
+
+## Table with absolute and relative changes combined
+
+
+```{r}
+tbl_both_abs %>% 
+  bind_rows(
+    tbl_both_abs
+  ) %>% 
+  knitr::kable(
+    digits = 2, 
+    caption = "Change in ASMR by sex, SIMD quintile, and period"
+  ) %>% 
+  kableExtra::kable_styling() %>% 
+  kableExtra::pack_rows("Percentage", 1,6) %>% 
+  kableExtra::pack_rows("Absolute", 6,12) %>% 
+  kableExtra::add_header_above(c(" "," ", "Differences" = 6, "Model results" = 3)) %>% 
+  kableExtra::footnote("Overall: Whole of Scotland. R.Sq. : R-Squared for model. Gradient: Increase in change per unit increase in quintile. Intercept: Predicted change in most deprived quintile. For gradient and intercept, values in parentheses show lower and upper 95% confidence intervals of coefficients respectively.")
+
+
+```
 # Approach discussed in sensitivity analysis (C2R1, C10R2)
 
 The sensitivity analysis to the paper showed the effect of using the fitted values for the first and last year in each of the periods, rather than the values themselves. This approach can address any concern that the first and last year within either period were in any way anomalous or uncharacteristic of change within the period as a whole. 
@@ -522,43 +597,7 @@ tbl_both_a %>%
 
 ```
 
-## Table with absolute and relative changes combined
 
-The following table now includes the relative changes, followed by the absolute changes as a separate row
-
-```{r}
-tbl_both %>%
-  gather(key = "key", value = "value", -sex, -period) %>%
-  mutate(measure = "Relative") %>% 
-  bind_rows(
-  tbl_both_a %>% 
-    gather(`Most deprived`:`Overall`, key = "SIMD", value = "value") %>% 
-    mutate(SIMD = factor(SIMD, 
-                       levels = c("Most deprived", "Q2", "Q3", "Q4", "Least deprived","Overall"),
-                       labels = c("Q.1 (Most deprived)", 
-                                  "Q.2", "Q.3", "Q.4", "Q.5 (Least deprived)", "Overall")
-                       )
-         ) %>% 
-  mutate(period = factor(period, levels = c("2006-2011", "2012-2017")))  %>%
-  spread(key = SIMD, value = value) %>% 
-  select(sex, period, `Q.1 (Most deprived)`:`Overall`, everything()) %>% 
-    gather(key = "key", value = "value", -sex, -period) %>% 
-    mutate(measure = "Absolute")
-  ) %>% 
-  mutate(period = factor(period, levels = c("2006-2011", "2012-2017")))  %>%
-  spread(key, value) %>% 
-  select(sex, period, measure, `Q.1 (Most deprived)`:`Q.5 (Least deprived)`, Overall, everything()) %>% 
-  arrange(sex, period, measure) %>% 
-  knitr::kable(
-    digits = 2, 
-    caption = "Percent change in ASMR by sex, SIMD quintile, and period. (Alternative method)"
-  ) %>% 
-  kableExtra::kable_styling() %>% 
-   kableExtra::add_header_above(c(" "," ", " ", "Percentages" = 6, "Model results" = 3)) #%>% 
-  # kableExtra::footnote("Overall: Whole of Scotland. R.Sq. : R-Squared for model. Gradient: Increase in % change per unit increase in quintile. Intercept: Predicted % change in most deprived quintile. For gradient and intercept, values in parentheses show lower and upper 95% confidence intervals of coefficients respectively.")
-
-#tbl_both_a
-```
 
 # Discussion
 
