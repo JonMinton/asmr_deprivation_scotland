@@ -208,7 +208,7 @@ p2 <- changes %>%
   geom_hline(yintercept = 0) + 
   geom_hline( # This adds the overall percent change
     aes(yintercept = percent_change, group = period),
-    data = percent_changes %>% filter(SIMD == "Overall"),
+    data = changes %>% filter(SIMD == "Overall"),
     linetype = "dashed"
   ) + 
   theme(axis.text.x = element_text(angle = 90)) + 
@@ -414,17 +414,22 @@ tbl_both_abs %>%
 
 
 ```{r}
-tbl_both_abs %>% 
+tbl_both_pct %>%
+  mutate(type = "pct") %>% 
   bind_rows(
-    tbl_both_abs
+    tbl_both_abs %>% mutate(type = "abs") 
   ) %>% 
+  mutate(period = factor(period, levels = c("2006-2011", "2012-2017")))  %>%
+  mutate(type = factor(type, levels = c("pct", "abs"))) %>% 
+  arrange(type, sex, period) %>% 
+  select(-type) %>% 
   knitr::kable(
     digits = 2, 
-    caption = "Change in ASMR by sex, SIMD quintile, and period"
+    caption = "Change in ASMRs per 100,000 population, by sex, SIMD quintile and period"
   ) %>% 
   kableExtra::kable_styling() %>% 
-  kableExtra::pack_rows("Percentage", 1,6) %>% 
-  kableExtra::pack_rows("Absolute", 6,12) %>% 
+  kableExtra::pack_rows("Percentage", 1,7) %>% 
+  kableExtra::pack_rows("Absolute", 7,12) %>% 
   kableExtra::add_header_above(c(" "," ", "Differences" = 6, "Model results" = 3)) %>% 
   kableExtra::footnote("Overall: Whole of Scotland. R.Sq. : R-Squared for model. Gradient: Increase in change per unit increase in quintile. Intercept: Predicted change in most deprived quintile. For gradient and intercept, values in parentheses show lower and upper 95% confidence intervals of coefficients respectively.")
 
@@ -488,7 +493,7 @@ p2a <- percent_changes_pred %>%
   geom_hline(yintercept = 0) + 
   geom_hline( # This adds the overall percent change
     aes(yintercept = percent_change, group = period),
-    data = percent_changes %>% filter(SIMD == "Overall"),
+    data = changes %>% filter(SIMD == "Overall"),
     linetype = "dashed"
   ) + 
   theme(axis.text.x = element_text(angle = 90)) + 
@@ -617,7 +622,7 @@ The reviewer comment was:
 The predicted vs observed values are shown as follows:
 
 ```{r, fig.width = 8, fig.height = 8}
-percent_changes %>% 
+changes %>% 
   filter(SIMD != "Overall") %>% 
   mutate(qnt = unclass(SIMD) - 1) %>% # This is so the intercept refers to the 1st quintile (not the 'zeroth' quintile)
   select(sex, period, percent_change, qnt) %>% 
