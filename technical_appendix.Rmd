@@ -235,6 +235,7 @@ p_both <- plot_grid(p1, p2, labels = c("A", "B"), ncol = 1, align = "v")
 
 p_both
 ggsave("figures/combined_figure_2012.png", dpi = 300, units = "cm", height = 30, width = 30)
+ggsave("figures/combined_figure_2012.tiff", dpi = 300, units = "cm", height = 30, width = 30)
 
 ```
 
@@ -505,6 +506,7 @@ p2a <- percent_changes_pred %>%
 p2a
 
 ggsave("figures/fig1a_using_alt_method_2012.png", dpi = 300, units = "cm", height = 16, width = 30)
+ggsave("figures/fig1a_using_alt_method_2012.tiff", dpi = 300, units = "cm", height = 16, width = 30)
 
 ```
 
